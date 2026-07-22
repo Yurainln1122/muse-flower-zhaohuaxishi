@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Restore build metadata
+        shell: bash
+        run: |
+          mkdir -p .openai
+          printf '%s\n' '{"project_id":"appgprj_6a5f83c7bcd88191b44fde6ab4ae5253","d1":null,"r2":null}' > .openai/hosting.json
+
       - name: Build static game
         shell: bash
         run: |
