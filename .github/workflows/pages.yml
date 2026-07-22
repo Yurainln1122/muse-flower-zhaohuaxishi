@@ -62,7 +62,9 @@ jobs:
           done
 
           test -s dist/pages/index.html
-          sed -i 's|="/assets/|="./assets/|g' dist/pages/index.html
+          # Rewrite both HTML attributes and inline module imports for a
+          # project Pages URL (/<repository>/) instead of the domain root.
+          sed -i 's|"/assets/|"./assets/|g' dist/pages/index.html
           sed -i 's|http://127.0.0.1:4173/og.png|https://yurainln1122.github.io/muse-flower-zhaohuaxishi/og.png|g' dist/pages/index.html
           sed -i 's|https://127.0.0.1:4173/og.png|https://yurainln1122.github.io/muse-flower-zhaohuaxishi/og.png|g' dist/pages/index.html
           cp dist/pages/index.html dist/pages/404.html
