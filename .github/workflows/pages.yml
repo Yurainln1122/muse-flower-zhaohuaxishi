@@ -1,0 +1,85 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+
+      - name: Allow dependency build scripts
+        run: pnpm config set dangerouslyAllowAllBuilds true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static game
+        shell: bash
+        run: |
+          pnpm build
+          rm -rf dist/pages
+          cp -R dist/client dist/pages
+
+          pnpm vinext start --port 4173 --hostname 127.0.0.1 > /tmp/muse-flower-pages.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          for attempt in {1..60}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ --output dist/pages/index.html; then
+              break
+            fi
+            sleep 0.25
+          done
+
+          test -s dist/pages/index.html
+          sed -i 's|="/assets/|="./assets/|g' dist/pages/index.html
+          sed -i 's|http://127.0.0.1:4173/og.png|https://yurainln1122.github.io/muse-flower-zhaohuaxishi/og.png|g' dist/pages/index.html
+          sed -i 's|https://127.0.0.1:4173/og.png|https://yurainln1122.github.io/muse-flower-zhaohuaxishi/og.png|g' dist/pages/index.html
+          cp dist/pages/index.html dist/pages/404.html
+          touch dist/pages/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/pages
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
