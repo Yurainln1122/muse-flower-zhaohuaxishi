@@ -4,7 +4,7 @@
 
 玩家不是鲁迅，也不扮演原作中的任何人物，而是以原创“拾花校勘员”身份进入四处纸景，通过翻证、细察和落印，重新判断旧事应当保留温情、留下锋芒，还是承认疑问。
 
-[在线试玩](https://muse-flower-zhaohuaxishi.niteappshelps.chatgpt.site)
+[▶ 手机/电脑直接试玩](https://yurainln1122.github.io/muse-flower-zhaohuaxishi/)
 
 ![《暮色拾花》桌面游戏画面](public/screenshots/gameplay-desktop.jpg)
 
@@ -39,6 +39,10 @@ pnpm dev
 开发服务器启动后，打开终端显示的本地地址。
 
 Windows 用户也可以双击项目根目录中的 `启动暮色拾花.ps1`。
+
+## 静态发布
+
+推送到 `main` 分支后，GitHub Actions 会自动生成纯静态版本并发布到 GitHub Pages。静态版本不依赖 ChatGPT 域名、登录或服务器接口，可直接在手机浏览器中运行。
 
 ## 检查与构建
 
